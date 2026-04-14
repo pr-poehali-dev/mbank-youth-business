@@ -1022,12 +1022,473 @@ export default function Index() {
             </div>
           </div>
         )}
+
+        {/* ===== AI ASSISTANT ===== */}
+        {activeSection === "ai" && (
+          <div key={`ai-${animKey}`} className="animate-slide-up space-y-6">
+            <div>
+              <h1 className="text-2xl font-black tracking-tight">ИИ-ассистент для бизнеса</h1>
+              <p className="text-white/40 text-sm mt-0.5">Консультации · Стратегия · Анализ · Автоматизация</p>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { label: "Консультаций", val: "1,847", icon: "MessageSquare", color: "#F5B731" },
+                { label: "Сэкономлено часов", val: "520+", icon: "Clock", color: "#10B981" },
+                { label: "Документов создано", val: "312", icon: "FileText", color: "#3B82F6" },
+                { label: "Точность ответов", val: "96%", icon: "Target", color: "#8B5CF6" },
+              ].map((s, i) => (
+                <div key={i} className="card-glass card-glass-hover rounded-2xl p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${s.color}18` }}>
+                    <Icon name={s.icon} size={20} style={{ color: s.color }} />
+                  </div>
+                  <div>
+                    <div className="font-mono-num font-black text-xl" style={{ color: s.color }}>{s.val}</div>
+                    <div className="text-white/40 text-xs">{s.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* AI Chat */}
+              <div className="lg:col-span-2 card-glass rounded-2xl p-5 flex flex-col" style={{ minHeight: "420px" }}>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg,#F5B731,#C8941A)" }}>
+                    <Icon name="Bot" size={16} className="text-[#0A0D14]" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm">М-Ассистент</div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="pulse-dot" style={{ width: 6, height: 6 }} />
+                      <span className="text-xs text-emerald-400">Онлайн</span>
+                    </div>
+                  </div>
+                  <div className="ml-auto flex gap-1.5">
+                    {["Бизнес", "Финансы", "Право", "Стратегия"].map((tag, i) => (
+                      <span key={i} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(245,183,49,0.1)", color: "#F5B731", border: "1px solid rgba(245,183,49,0.15)" }}>{tag}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex-1 space-y-4 overflow-y-auto mb-4 pr-1">
+                  {[
+                    { from: "ai", text: "Здравствуйте! Я ваш ИИ-ассистент М Банка. Помогу с вопросами по ведению бизнеса, стратегии роста, слияниям, правовым нормам и финансовому планированию. Чем могу помочь?" },
+                    { from: "user", text: "Какие шаги нужны для масштабирования компании от ООО до холдинга?" },
+                    { from: "ai", text: "Для масштабирования от ООО до холдинговой структуры рекомендую пошаговый план:\n\n1. Аудит текущей структуры — оценка активов, обязательств и потенциала каждого направления\n2. Выделение бизнес-юнитов — создание отдельных юрлиц под каждое направление\n3. Создание управляющей компании (УК) — она станет головной структурой холдинга\n4. Перевод долей/акций — передача контрольных пакетов дочерних компаний в УК\n5. Корпоративные договоры — акционерные соглашения, уставы, регламенты\n\nМогу детализировать любой этап или подготовить чек-лист для вашей ситуации." },
+                    { from: "user", text: "Подготовь чек-лист по пункту 5 — корпоративные договоры" },
+                    { from: "ai", text: "Чек-лист корпоративных договоров для холдинга:\n\n✅ Акционерное соглашение (SHA) — права, обязанности, tag/drag along\n✅ Устав УК — порядок принятия решений, кворум, вето-права\n✅ Договоры управления с дочерними компаниями\n✅ Положение о совете директоров и правлении\n✅ Трансфертное ценообразование — ст.105.1 НК РФ\n✅ Комплаенс-политика и антикоррупционная оговорка\n✅ NDA между участниками и менеджментом\n✅ Опционные программы для ключевых сотрудников\n\nГотов подготовить шаблон любого документа. Рекомендую также провести due diligence перед реструктуризацией." },
+                  ].map((msg, i) => (
+                    <div key={i} className={`flex gap-3 ${msg.from === "user" ? "flex-row-reverse" : ""}`}>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${msg.from === "ai" ? "" : ""}`}
+                        style={msg.from === "ai"
+                          ? { background: "linear-gradient(135deg,#F5B731,#C8941A)", color: "#0A0D14" }
+                          : { background: "rgba(59,130,246,0.2)", color: "#3B82F6", border: "1px solid rgba(59,130,246,0.3)" }}>
+                        {msg.from === "ai" ? "М" : "Вы"}
+                      </div>
+                      <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${msg.from === "ai"
+                        ? "bg-white/5 text-white/80"
+                        : "text-white/90"}`}
+                        style={msg.from === "user" ? { background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.2)" } : {}}>
+                        {msg.text.split("\n").map((line, li) => (
+                          <span key={li}>{line}<br /></span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="flex-1 flex items-center px-4 py-3 rounded-xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <input placeholder="Спросите ИИ-ассистента..." className="bg-transparent text-white/80 w-full outline-none text-sm placeholder:text-white/25" />
+                  </div>
+                  <button className="btn-gold px-4 rounded-xl flex items-center gap-2">
+                    <Icon name="Send" size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick actions */}
+              <div className="space-y-4">
+                <div className="card-glass rounded-2xl p-5">
+                  <div className="font-bold text-base mb-4 flex items-center gap-2">
+                    <Icon name="Zap" size={16} className="text-[#F5B731]" />
+                    Быстрые запросы
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      { text: "Составить бизнес-план", icon: "FileText" },
+                      { text: "Анализ конкурентов", icon: "Search" },
+                      { text: "Проверить контрагента", icon: "ShieldCheck" },
+                      { text: "Оптимизация налогов", icon: "Calculator" },
+                      { text: "Стратегия выхода на рынок", icon: "Rocket" },
+                      { text: "Подготовить договор", icon: "PenTool" },
+                      { text: "Оценка бизнеса", icon: "BarChart3" },
+                      { text: "SWOT-анализ компании", icon: "LayoutGrid" },
+                    ].map((q, i) => (
+                      <button key={i} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-white/5 transition-colors group"
+                        style={{ border: "1px solid rgba(255,255,255,0.05)" }}>
+                        <Icon name={q.icon} size={14} className="text-[#F5B731] shrink-0" />
+                        <span className="text-sm text-white/70 group-hover:text-white/90">{q.text}</span>
+                        <Icon name="ChevronRight" size={12} className="ml-auto text-white/20 group-hover:text-[#F5B731]" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="card-glass rounded-2xl p-5">
+                  <div className="font-bold text-sm mb-3 flex items-center gap-2">
+                    <Icon name="History" size={14} className="text-[#F5B731]" />
+                    Недавние сессии
+                  </div>
+                  {[
+                    { title: "Масштабирование ООО → холдинг", time: "Сегодня", msgs: 12 },
+                    { title: "Участие в тендере 44-ФЗ", time: "Вчера", msgs: 8 },
+                    { title: "Оптимизация налоговой нагрузки", time: "12 апр", msgs: 15 },
+                  ].map((s, i) => (
+                    <div key={i} className="flex items-center gap-3 py-2.5 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors rounded-lg px-2 -mx-2">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(245,183,49,0.08)" }}>
+                        <Icon name="MessageSquare" size={14} className="text-[#F5B731]/60" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-white/80 truncate">{s.title}</div>
+                        <div className="text-xs text-white/30">{s.time} · {s.msgs} сообщений</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===== MERGERS ===== */}
+        {activeSection === "mergers" && (
+          <div key={`mergers-${animKey}`} className="animate-slide-up space-y-6">
+            <div>
+              <h1 className="text-2xl font-black tracking-tight">Слияния и развитие бизнеса</h1>
+              <p className="text-white/40 text-sm mt-0.5">От фирмы до корпорации · Нетворкинг · Стыковка бизнесов</p>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { label: "Предложений M&A", val: "34", icon: "GitMerge", color: "#F5B731" },
+                { label: "Активных сделок", val: "5", icon: "Handshake", color: "#10B981" },
+                { label: "В сети компаний", val: "2,140", icon: "Building2", color: "#3B82F6" },
+                { label: "Успешных слияний", val: "89", icon: "Trophy", color: "#8B5CF6" },
+              ].map((s, i) => (
+                <div key={i} className="card-glass card-glass-hover rounded-2xl p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${s.color}18` }}>
+                    <Icon name={s.icon} size={20} style={{ color: s.color }} />
+                  </div>
+                  <div>
+                    <div className="font-mono-num font-black text-xl" style={{ color: s.color }}>{s.val}</div>
+                    <div className="text-white/40 text-xs">{s.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Growth Path */}
+            <div className="card-glass rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-5">
+                <Icon name="TrendingUp" size={18} className="text-[#F5B731]" />
+                <div className="font-bold text-base">Путь роста: от фирмы до корпорации</div>
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                {[
+                  { stage: "ИП / Самозанятый", desc: "Старт · Один продукт", icon: "User", active: false, done: true },
+                  { stage: "ООО", desc: "Команда · Юр. лицо", icon: "Users", active: false, done: true },
+                  { stage: "Группа компаний", desc: "Несколько направлений", icon: "Building", active: true, done: false },
+                  { stage: "Холдинг", desc: "УК + дочерние компании", icon: "Building2", active: false, done: false },
+                  { stage: "Корпорация", desc: "Международный масштаб", icon: "Globe", active: false, done: false },
+                ].map((s, i) => (
+                  <div key={i} className={`relative rounded-xl p-4 text-center ${s.active ? "" : ""}`}
+                    style={{
+                      background: s.active ? "rgba(245,183,49,0.1)" : s.done ? "rgba(16,185,129,0.06)" : "rgba(255,255,255,0.03)",
+                      border: s.active ? "1px solid rgba(245,183,49,0.3)" : s.done ? "1px solid rgba(16,185,129,0.15)" : "1px solid rgba(255,255,255,0.06)"
+                    }}>
+                    {s.done && (
+                      <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#10B981" }}>
+                        <Icon name="Check" size={10} className="text-white" />
+                      </div>
+                    )}
+                    {s.active && (
+                      <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#F5B731" }}>
+                        <Icon name="ArrowRight" size={10} className="text-[#0A0D14]" />
+                      </div>
+                    )}
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2"
+                      style={{ background: s.active ? "rgba(245,183,49,0.2)" : s.done ? "rgba(16,185,129,0.12)" : "rgba(255,255,255,0.05)" }}>
+                      <Icon name={s.icon} size={20} style={{ color: s.active ? "#F5B731" : s.done ? "#10B981" : "#ffffff40" }} />
+                    </div>
+                    <div className={`font-semibold text-sm ${s.active ? "text-[#F5B731]" : s.done ? "text-[#10B981]" : "text-white/50"}`}>{s.stage}</div>
+                    <div className="text-xs text-white/30 mt-0.5">{s.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* M&A Opportunities */}
+              <div className="card-glass rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="font-bold text-base flex items-center gap-2">
+                    <Icon name="GitMerge" size={16} className="text-[#F5B731]" />
+                    Предложения M&A
+                  </div>
+                  <button className="btn-gold px-3 py-1.5 rounded-lg text-xs font-bold">Разместить</button>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { type: "Покупка", company: "ТехСтарт", industry: "IT · SaaS", revenue: "₽45М/год", price: "₽180М", match: 92, color: "#10B981" },
+                    { type: "Слияние", company: "ЛогистикПро", industry: "Логистика · 3PL", revenue: "₽120М/год", price: "Обмен долями", match: 85, color: "#3B82F6" },
+                    { type: "Инвестиции", company: "ГринАгро", industry: "Агро · Экспорт", revenue: "₽80М/год", price: "₽50М за 25%", match: 78, color: "#8B5CF6" },
+                    { type: "Поглощение", company: "ФинТехЛаб", industry: "Финтех · Платежи", revenue: "₽200М/год", price: "₽800М", match: 71, color: "#F5B731" },
+                  ].map((deal, i) => (
+                    <div key={i} className="rounded-xl p-4 hover:bg-white/5 transition-colors cursor-pointer"
+                      style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                              style={{ background: `${deal.color}15`, color: deal.color, border: `1px solid ${deal.color}25` }}>{deal.type}</span>
+                            <span className="font-bold text-sm text-white/90">{deal.company}</span>
+                          </div>
+                          <div className="text-xs text-white/40">{deal.industry}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-white/30">Совпадение</div>
+                          <div className="font-mono-num font-bold text-sm" style={{ color: deal.color }}>{deal.match}%</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs">
+                        <div className="text-white/50">Выручка: <span className="font-mono-num text-white/80">{deal.revenue}</span></div>
+                        <div className="text-white/50">Цена: <span className="font-mono-num text-[#F5B731]">{deal.price}</span></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Business Network Match */}
+              <div className="card-glass rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="font-bold text-base flex items-center gap-2">
+                    <Icon name="Link" size={16} className="text-[#F5B731]" />
+                    Стыковка бизнесов
+                  </div>
+                  <button className="text-[#F5B731] text-xs hover:underline">Все совпадения</button>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { companyA: "Ваша компания", needA: "Нужна логистика в ЮВА", companyB: "TransAsia Ltd.", needB: "Ищет IT-партнёра в РФ", matchScore: 94 },
+                    { companyA: "Ваша компания", needA: "Выход на маркетплейсы КНР", companyB: "ChinaLink Corp.", needB: "Поставки из России", matchScore: 88 },
+                    { companyA: "Ваша компания", needA: "Автоматизация склада", companyB: "РобоСклад", needB: "Пилотные проекты", matchScore: 82 },
+                  ].map((match, i) => (
+                    <div key={i} className="rounded-xl p-4" style={{ background: "rgba(245,183,49,0.04)", border: "1px solid rgba(245,183,49,0.1)" }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-semibold stat-badge px-2 py-0.5 rounded-full">Совпадение {match.matchScore}%</span>
+                      </div>
+                      <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
+                        <div>
+                          <div className="font-semibold text-sm text-white/90">{match.companyA}</div>
+                          <div className="text-xs text-white/40 mt-0.5">{match.needA}</div>
+                        </div>
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(245,183,49,0.15)" }}>
+                          <Icon name="ArrowLeftRight" size={14} className="text-[#F5B731]" />
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-sm text-white/90">{match.companyB}</div>
+                          <div className="text-xs text-white/40 mt-0.5">{match.needB}</div>
+                        </div>
+                      </div>
+                      <button className="mt-3 w-full py-1.5 rounded-lg text-xs font-semibold btn-gold">Начать переговоры</button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-white/5">
+                  <div className="font-bold text-sm mb-3">Создать свою бизнес-сеть</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { label: "Поставщики", count: 24, icon: "Truck" },
+                      { label: "Партнёры", count: 18, icon: "Handshake" },
+                      { label: "Клиенты B2B", count: 67, icon: "Building" },
+                      { label: "Инвесторы", count: 9, icon: "Gem" },
+                    ].map((g, i) => (
+                      <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl cursor-pointer hover:bg-white/5 transition-colors"
+                        style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+                        <Icon name={g.icon} size={14} className="text-[#F5B731]" />
+                        <div className="flex-1">
+                          <div className="text-xs text-white/70">{g.label}</div>
+                        </div>
+                        <span className="font-mono-num text-sm font-bold text-white/50">{g.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===== LEGAL ===== */}
+        {activeSection === "legal" && (
+          <div key={`legal-${animKey}`} className="animate-slide-up space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-black tracking-tight">Право и законодательство</h1>
+                <p className="text-white/40 text-sm mt-0.5">Права предпринимателей · Законы · Юридическая база</p>
+              </div>
+              <button className="btn-gold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                <Icon name="Search" size={14} />
+                Поиск по законам
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { label: "Законов в базе", val: "4,200+", icon: "BookOpen", color: "#F5B731" },
+                { label: "Шаблонов документов", val: "350", icon: "FileText", color: "#10B981" },
+                { label: "Судебных прецедентов", val: "12,800", icon: "Gavel", color: "#3B82F6" },
+                { label: "Обновлений за месяц", val: "47", icon: "RefreshCw", color: "#8B5CF6" },
+              ].map((s, i) => (
+                <div key={i} className="card-glass card-glass-hover rounded-2xl p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${s.color}18` }}>
+                    <Icon name={s.icon} size={20} style={{ color: s.color }} />
+                  </div>
+                  <div>
+                    <div className="font-mono-num font-black text-xl" style={{ color: s.color }}>{s.val}</div>
+                    <div className="text-white/40 text-xs">{s.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Key Laws */}
+            <div className="card-glass rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Icon name="Scale" size={18} className="text-[#F5B731]" />
+                <div className="font-bold text-base">Ключевые законы для предпринимателей</div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {[
+                  { code: "ГК РФ", title: "Гражданский кодекс", desc: "Основа договорных отношений, собственность, юрлица", articles: "1551 статей", color: "#F5B731" },
+                  { code: "НК РФ", title: "Налоговый кодекс", desc: "Налоги, сборы, режимы налогообложения (УСН, ОСНО, ПСН)", articles: "452 статей", color: "#EF4444" },
+                  { code: "44-ФЗ", title: "О контрактной системе", desc: "Госзакупки, тендеры, электронные аукционы", articles: "114 статей", color: "#3B82F6" },
+                  { code: "223-ФЗ", title: "О закупках юрлицами", desc: "Закупки госкомпаний, субъекты МСП", articles: "8 статей", color: "#8B5CF6" },
+                  { code: "14-ФЗ", title: "Об ООО", desc: "Создание, управление, реорганизация ООО", articles: "62 статей", color: "#10B981" },
+                  { code: "209-ФЗ", title: "О развитии МСП", desc: "Поддержка малого и среднего бизнеса", articles: "27 статей", color: "#F59E0B" },
+                  { code: "63-ФЗ", title: "Об электронной подписи", desc: "КЭП, УКЭП, удостоверяющие центры", articles: "20 статей", color: "#06B6D4" },
+                  { code: "152-ФЗ", title: "О персональных данных", desc: "Обработка, хранение, защита ПДн", articles: "25 статей", color: "#EC4899" },
+                ].map((law, i) => (
+                  <div key={i} className="flex items-start gap-3 rounded-xl p-3 hover:bg-white/5 transition-colors cursor-pointer"
+                    style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 font-black text-xs"
+                      style={{ background: `${law.color}15`, color: law.color, border: `1px solid ${law.color}25` }}>
+                      {law.code.split(" ")[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm text-white/90">{law.code} — {law.title}</div>
+                      <div className="text-xs text-white/40 mt-0.5">{law.desc}</div>
+                      <div className="text-xs text-white/25 mt-1">{law.articles}</div>
+                    </div>
+                    <Icon name="ExternalLink" size={12} className="text-white/20 shrink-0 mt-1" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Rights */}
+              <div className="card-glass rounded-2xl p-5">
+                <div className="font-bold text-base mb-4 flex items-center gap-2">
+                  <Icon name="Shield" size={16} className="text-[#F5B731]" />
+                  Права предпринимателя
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { right: "Свобода предпринимательской деятельности", basis: "ст.34 Конституции РФ", icon: "Star" },
+                    { right: "Защита частной собственности", basis: "ст.35 Конституции РФ", icon: "Lock" },
+                    { right: "Свобода договора", basis: "ст.421 ГК РФ", icon: "FileText" },
+                    { right: "Судебная защита прав", basis: "ст.46 Конституции РФ", icon: "Gavel" },
+                    { right: "Право на льготное кредитование", basis: "209-ФЗ", icon: "CreditCard" },
+                    { right: "Защита от незаконных проверок", basis: "294-ФЗ", icon: "ShieldCheck" },
+                    { right: "Участие в госзакупках", basis: "44-ФЗ, 223-ФЗ", icon: "FileCheck" },
+                    { right: "Налоговые каникулы для ИП", basis: "346.20 НК РФ", icon: "Percent" },
+                  ].map((r, i) => (
+                    <div key={i} className="flex items-center gap-3 py-2 px-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(16,185,129,0.1)" }}>
+                        <Icon name={r.icon} size={13} className="text-[#10B981]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-white/80">{r.right}</div>
+                        <div className="text-xs text-white/30">{r.basis}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Document Templates + Legal Updates */}
+              <div className="space-y-4">
+                <div className="card-glass rounded-2xl p-5">
+                  <div className="font-bold text-base mb-4 flex items-center gap-2">
+                    <Icon name="FileText" size={16} className="text-[#F5B731]" />
+                    Шаблоны документов
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { name: "Договор поставки", downloads: "2.1K" },
+                      { name: "Договор оказания услуг", downloads: "1.8K" },
+                      { name: "NDA (конфиденциальность)", downloads: "3.2K" },
+                      { name: "Акционерное соглашение", downloads: "890" },
+                      { name: "Учредительный договор", downloads: "1.5K" },
+                      { name: "Агентский договор", downloads: "1.1K" },
+                    ].map((doc, i) => (
+                      <button key={i} className="flex items-center gap-2 p-3 rounded-xl text-left hover:bg-white/5 transition-colors"
+                        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                        <Icon name="Download" size={12} className="text-[#F5B731] shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs text-white/80 truncate">{doc.name}</div>
+                          <div className="text-[10px] text-white/30">{doc.downloads} скачиваний</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="card-glass rounded-2xl p-5">
+                  <div className="font-bold text-sm mb-3 flex items-center gap-2">
+                    <Icon name="Bell" size={14} className="text-[#F5B731]" />
+                    Последние изменения в законах
+                  </div>
+                  {[
+                    { title: "Повышение лимита по УСН до ₽450М", date: "12.04.2026", tag: "НК РФ", tagColor: "#EF4444" },
+                    { title: "Электронные трудовые книжки обязательны", date: "10.04.2026", tag: "ТК РФ", tagColor: "#3B82F6" },
+                    { title: "Новые правила маркировки товаров", date: "08.04.2026", tag: "487-ФЗ", tagColor: "#8B5CF6" },
+                  ].map((upd, i) => (
+                    <div key={i} className="flex items-center gap-3 py-2.5 border-b border-white/5">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-white/80 truncate">{upd.title}</div>
+                        <div className="text-xs text-white/30">{upd.date}</div>
+                      </div>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0"
+                        style={{ background: `${upd.tagColor}15`, color: upd.tagColor, border: `1px solid ${upd.tagColor}25` }}>{upd.tag}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* BOTTOM MOBILE NAV */}
       <nav className="fixed bottom-0 left-0 right-0 lg:hidden z-40 flex"
         style={{ background: "rgba(10,13,20,0.97)", borderTop: "1px solid rgba(245,183,49,0.1)", backdropFilter: "blur(20px)" }}>
-        {NAV_ITEMS.slice(0, 5).map(item => (
+        {[NAV_ITEMS[0], NAV_ITEMS[1], NAV_ITEMS[7], NAV_ITEMS[8], NAV_ITEMS[9]].filter(Boolean).map(item => (
           <button key={item.id}
             onClick={() => setActiveSection(item.id)}
             className={`flex-1 flex flex-col items-center py-3 gap-1 transition-all ${activeSection === item.id ? "text-[#F5B731]" : "text-white/30"}`}>
