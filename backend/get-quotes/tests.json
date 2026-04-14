@@ -1,0 +1,1 @@
+{"tests": [{"name": "Get all quotes", "method": "GET", "path": "/", "expectedStatus": 200, "expectedBody": {"quotes": "array", "count": "number"}, "bodyMatcher": "partial"}]}

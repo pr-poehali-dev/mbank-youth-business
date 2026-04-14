@@ -1,18 +1,42 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import func2url from "../../backend/func2url.json";
 
-const TICKERS = [
+interface Quote {
+  sym: string;
+  name: string;
+  price: number;
+  price_usd?: number;
+  currency: string;
+  suffix?: string;
+  change: number;
+  up: boolean;
+  category: string;
+}
+
+const FALLBACK_TICKERS = [
   { sym: "SBER", name: "Сбербанк", price: "312.40", change: "+2.14%", up: true },
   { sym: "GAZP", name: "Газпром", price: "166.18", change: "-0.87%", up: false },
-  { sym: "BTC", name: "Биткоин", price: "₿63,480", change: "+4.21%", up: true },
-  { sym: "ETH", name: "Ethereum", price: "₿3,210", change: "+1.95%", up: true },
+  { sym: "BTC", name: "Bitcoin", price: "₽5,845,520", change: "+4.21%", up: true },
+  { sym: "ETH", name: "Ethereum", price: "₽296,760", change: "+1.95%", up: true },
   { sym: "XAU", name: "Золото", price: "$2,318/oz", change: "+0.42%", up: true },
-  { sym: "USD", name: "Доллар", price: "92.34 ₽", change: "-0.15%", up: false },
+  { sym: "USD", name: "Доллар США", price: "92.34 ₽", change: "-0.15%", up: false },
   { sym: "EUR", name: "Евро", price: "99.12 ₽", change: "+0.08%", up: true },
   { sym: "CNY", name: "Юань", price: "12.68 ₽", change: "-0.22%", up: false },
-  { sym: "LKOH", name: "Лукойл", price: "7,240", change: "+1.33%", up: true },
-  { sym: "YNDX", name: "Яндекс", price: "4,125", change: "+3.07%", up: true },
+  { sym: "LKOH", name: "Лукойл", price: "5,443.50", change: "+0.06%", up: true },
 ];
+
+function formatPrice(q: Quote): string {
+  const p = q.price;
+  if (q.category === "crypto") return `${q.currency}${p.toLocaleString("ru-RU")}`;
+  if (q.category === "metals") return `${q.currency}${p.toLocaleString("en-US")}${q.suffix || ""}`;
+  if (q.category === "currency") return `${p.toFixed(2)} ₽`;
+  return `${p.toLocaleString("ru-RU")} ${q.currency}`;
+}
+
+function formatChange(change: number): string {
+  return `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
+}
 
 const NAV_ITEMS = [
   { icon: "LayoutDashboard", label: "Дашборд", id: "dashboard" },
@@ -65,12 +89,61 @@ export default function Index() {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [animKey, setAnimKey] = useState(0);
+  const [liveQuotes, setLiveQuotes] = useState<Quote[]>([]);
+  const [quotesLoading, setQuotesLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState<string>("");
+  const [priceHistory, setPriceHistory] = useState<Record<string, number[]>>({});
+
+  const fetchQuotes = useCallback(async () => {
+    try {
+      const res = await fetch(func2url["get-quotes"]);
+      const data = await res.json();
+      if (data.quotes && data.quotes.length > 0) {
+        setLiveQuotes(data.quotes);
+        setLastUpdate(new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }));
+        setPriceHistory(prev => {
+          const updated = { ...prev };
+          data.quotes.forEach((q: Quote) => {
+            const history = updated[q.sym] || [];
+            updated[q.sym] = [...history.slice(-11), q.price];
+          });
+          return updated;
+        });
+      }
+    } catch (e) {
+      console.error("Quotes fetch error:", e);
+    } finally {
+      setQuotesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchQuotes();
+    const interval = setInterval(fetchQuotes, 30000);
+    return () => clearInterval(interval);
+  }, [fetchQuotes]);
 
   useEffect(() => {
     setAnimKey(k => k + 1);
   }, [activeSection]);
 
-  const tickerItems = [...TICKERS, ...TICKERS];
+  const tickerData = liveQuotes.length > 0
+    ? liveQuotes.map(q => ({
+        sym: q.sym,
+        name: q.name,
+        price: formatPrice(q),
+        change: formatChange(q.change),
+        up: q.up,
+      }))
+    : FALLBACK_TICKERS;
+
+  const tickerItems = [...tickerData, ...tickerData];
+
+  const stockQuotes = liveQuotes.filter(q => q.category === "stocks");
+  const cryptoQuotes = liveQuotes.filter(q => q.category === "crypto");
+  const currencyQuotes = liveQuotes.filter(q => q.category === "currency");
+  const metalQuotes = liveQuotes.filter(q => q.category === "metals");
+  const allTradingQuotes = [...stockQuotes, ...cryptoQuotes, ...metalQuotes, ...currencyQuotes];
 
   return (
     <div className="min-h-screen bg-[#0A0D14] grid-line-bg text-white flex flex-col" style={{ fontFamily: "'Golos Text', sans-serif" }}>
@@ -99,9 +172,11 @@ export default function Index() {
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
-            <div className="pulse-dot" />
-            <span className="text-xs text-emerald-400 font-medium">Рынок открыт</span>
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: liveQuotes.length > 0 ? "rgba(16,185,129,0.1)" : "rgba(245,183,49,0.1)", border: `1px solid ${liveQuotes.length > 0 ? "rgba(16,185,129,0.2)" : "rgba(245,183,49,0.2)"}` }}>
+            <div className={liveQuotes.length > 0 ? "pulse-dot" : "pulse-dot"} style={liveQuotes.length === 0 ? { background: "#F5B731", boxShadow: "0 0 0 0 rgba(245,183,49,0.5)" } : {}} />
+            <span className={`text-xs font-medium ${liveQuotes.length > 0 ? "text-emerald-400" : "text-[#F5B731]"}`}>
+              {quotesLoading ? "Загрузка..." : liveQuotes.length > 0 ? `Live · ${lastUpdate}` : "Оффлайн"}
+            </span>
           </div>
           <button className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(245,183,49,0.1)", border: "1px solid rgba(245,183,49,0.2)" }}>
             <Icon name="Bell" size={16} className="text-[#F5B731]" />
@@ -157,7 +232,7 @@ export default function Index() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-black tracking-tight">Финансовый дашборд</h1>
-                <p className="text-white/40 text-sm mt-0.5">14 апреля 2026 · Москва</p>
+                <p className="text-white/40 text-sm mt-0.5">{new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })} · Москва{lastUpdate ? ` · обновлено ${lastUpdate}` : ""}</p>
               </div>
               <button className="btn-gold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
                 <Icon name="Download" size={14} />
@@ -344,16 +419,11 @@ export default function Index() {
                     <span className="text-right">График</span>
                   </div>
                 </div>
-                {[
-                  { sym: "SBER", name: "Сбербанк", price: "312.40 ₽", ch: "+2.14%", up: true, d: [55,60,52,68,75,70,85] },
-                  { sym: "GAZP", name: "Газпром", price: "166.18 ₽", ch: "-0.87%", up: false, d: [80,75,78,72,68,65,63] },
-                  { sym: "BTC", name: "Bitcoin", price: "₽5,845,520", ch: "+4.21%", up: true, d: [40,50,45,62,70,75,85] },
-                  { sym: "ETH", name: "Ethereum", price: "₽296,760", ch: "+1.95%", up: true, d: [30,40,38,50,55,52,62] },
-                  { sym: "XAU", name: "Золото", price: "$2,318/oz", ch: "+0.42%", up: true, d: [60,62,65,63,67,68,70] },
-                  { sym: "XAG", name: "Серебро", price: "$27.45/oz", ch: "-0.31%", up: false, d: [50,48,52,45,43,46,44] },
-                  { sym: "USD", name: "Доллар США", price: "92.34 ₽", ch: "-0.15%", up: false, d: [95,93,92,94,93,92,91] },
-                  { sym: "CNY", name: "Юань", price: "12.68 ₽", ch: "-0.22%", up: false, d: [13,12.8,12.9,12.7,12.8,12.6,12.7] },
-                ].map((ins, i) => (
+                {(allTradingQuotes.length > 0 ? allTradingQuotes : [
+                  { sym: "SBER", name: "Сбербанк", price: 312.40, currency: "₽", change: 2.14, up: true, category: "stocks" },
+                  { sym: "GAZP", name: "Газпром", price: 166.18, currency: "₽", change: -0.87, up: false, category: "stocks" },
+                  { sym: "BTC", name: "Bitcoin", price: 5845520, currency: "₽", change: 4.21, up: true, category: "crypto" },
+                ] as Quote[]).map((ins, i) => (
                   <div key={i} className="grid grid-cols-4 items-center px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black"
@@ -363,9 +433,11 @@ export default function Index() {
                         <div className="text-xs text-white/35">{ins.name}</div>
                       </div>
                     </div>
-                    <div className="text-right font-mono-num font-semibold text-sm text-white/90">{ins.price}</div>
-                    <div className={`text-right font-mono-num font-bold text-sm ${ins.up ? "ticker-up" : "ticker-down"}`}>{ins.ch}</div>
-                    <div className="flex justify-end"><MiniChart data={ins.d} color={ins.up ? "green" : "red"} /></div>
+                    <div className="text-right font-mono-num font-semibold text-sm text-white/90">{formatPrice(ins)}</div>
+                    <div className={`text-right font-mono-num font-bold text-sm ${ins.up ? "ticker-up" : "ticker-down"}`}>{formatChange(ins.change)}</div>
+                    <div className="flex justify-end">
+                      <MiniChart data={priceHistory[ins.sym] || [ins.price * 0.98, ins.price * 0.99, ins.price * 1.01, ins.price * 0.995, ins.price * 1.005, ins.price * 1.01, ins.price]} color={ins.up ? "green" : "red"} />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -377,8 +449,8 @@ export default function Index() {
                     <div>
                       <label className="text-xs text-white/40 mb-1 block">Инструмент</label>
                       <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                        <span className="text-[#F5B731] font-semibold text-sm">SBER</span>
-                        <span className="text-white/40 text-sm">· Сбербанк</span>
+                        <span className="text-[#F5B731] font-semibold text-sm">{stockQuotes[0]?.sym || "SBER"}</span>
+                        <span className="text-white/40 text-sm">· {stockQuotes[0]?.name || "Сбербанк"}</span>
                         <Icon name="ChevronDown" size={14} className="ml-auto text-white/30" />
                       </div>
                     </div>
@@ -399,11 +471,11 @@ export default function Index() {
                     <div className="pt-1 border-t border-white/5">
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-white/40">Ориентировочная сумма</span>
-                        <span className="font-mono-num font-bold text-white/90">₽3,124,000</span>
+                        <span className="font-mono-num font-bold text-white/90">₽{((stockQuotes[0]?.price || 312) * 100).toLocaleString("ru-RU")}</span>
                       </div>
                       <div className="flex justify-between text-xs">
                         <span className="text-white/40">Комиссия</span>
-                        <span className="font-mono-num text-white/60">₽312</span>
+                        <span className="font-mono-num text-white/60">₽{Math.round((stockQuotes[0]?.price || 312) * 100 * 0.001).toLocaleString("ru-RU")}</span>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2 pt-1">
@@ -434,7 +506,7 @@ export default function Index() {
                     <div className="px-3 py-2 rounded-xl flex items-center justify-between" style={{ background: "rgba(255,255,255,0.04)" }}>
                       <span className="text-white/50 text-xs">Получаю</span>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono-num font-bold text-[#10B981]">923,400</span>
+                        <span className="font-mono-num font-bold text-[#10B981]">{(10000 * (currencyQuotes.find(q => q.sym === "USD")?.price || 92.34)).toLocaleString("ru-RU", { maximumFractionDigits: 0 })}</span>
                         <span className="text-[#10B981] text-xs font-semibold">RUB</span>
                       </div>
                     </div>
