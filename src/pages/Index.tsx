@@ -46,6 +46,9 @@ const NAV_ITEMS = [
   { icon: "CreditCard", label: "Счета", id: "accounts" },
   { icon: "GraduationCap", label: "Бизнес-хаб", id: "hub" },
   { icon: "Users", label: "Деловая сеть", id: "network" },
+  { icon: "Bot", label: "ИИ-ассистент", id: "ai" },
+  { icon: "Building", label: "Слияния", id: "mergers" },
+  { icon: "Scale", label: "Право", id: "legal" },
 ];
 
 const CHART_DATA = [42, 58, 51, 67, 74, 63, 80, 88, 76, 92, 85, 97];
